@@ -1,19 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
+require('dotenv').config(); // Load environment variables
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const mongoDBKey = process.env.MONGODB_KEY;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/laptop_store', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
-  console.log('Connected to MongoDB');
-});
+mongoose.connect(mongoDBKey)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // Exit the application if MongoDB connection fails
+  });
 
 // Middleware for parsing JSON bodies
 app.use(express.json());
@@ -33,6 +34,7 @@ app.get('/api/laptops', async (req, res) => {
     const laptops = await Laptop.find();
     res.json(laptops);
   } catch (error) {
+    console.error('Error fetching laptops:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
