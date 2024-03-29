@@ -1,0 +1,21 @@
+<!-- laptop-list.component.html -->
+<div class="container">
+  <h1>List of Laptops</h1>
+
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Brand</th>
+      <th>Price</th>
+      <th>Actions</th>
+    </tr>
+    <tr *ngFor="let laptop of laptops">
+      <td>{{ laptop.name }}</td>
+      <td>{{ laptop.brand }}</td>
+      <td>{{ laptop.price }}</td>
+      <td>
+        <button (click)="deleteLaptop(laptop._id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+</div>

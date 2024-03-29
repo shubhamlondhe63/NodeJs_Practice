@@ -1,32 +1,39 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors'); // Import the cors middleware
 require('dotenv').config(); // Load environment variables
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const mongoDBKey = process.env.MONGODB_KEY;
 
-// Connect to MongoDB
-mongoose.connect(mongoDBKey)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit the application if MongoDB connection fails
-  });
+// Middleware
+app.use(cors()); // Use cors middleware to enable CORS
 
-// Middleware for parsing JSON bodies
+// Body parsing middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Connect to MongoDB with database name
+mongoose.connect(mongoDBKey, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  dbName: 'LaptopDatabase' // Specify the database name here
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((err) => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1); // Exit the application if MongoDB connection fails
+});
 
 // Define Laptop Schema
 const laptopSchema = new mongoose.Schema({
-  name: String,
-  brand: String,
-  price: Number,
-});
+    name: String,
+    brand: String,
+    price: Number,
+  }, { collection: 'LaptopCollection' }); 
 
-const Laptop = mongoose.model('Laptop', laptopSchema);
+  const Laptop = mongoose.model('Laptop', laptopSchema, 'LaptopCollection'); // Specify the model name and collection name here
 
 // Define API routes
 app.get('/api/laptops', async (req, res) => {
@@ -35,6 +42,42 @@ app.get('/api/laptops', async (req, res) => {
     res.json(laptops);
   } catch (error) {
     console.error('Error fetching laptops:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/laptops', async (req, res) => {
+    try {
+      const { name, brand, price } = req.body;
+      const newLaptop = new Laptop({ name, brand, price });
+      await newLaptop.save();
+      res.status(201).json({ message: 'Laptop added successfully', laptop: newLaptop });
+    } catch (error) {
+      console.error('Error adding laptop:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+
+app.put('/api/laptops/update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, brand, price } = req.body;
+    const updatedLaptop = await Laptop.findByIdAndUpdate(id, { name, brand, price }, { new: true });
+    res.json({ message: 'Laptop updated successfully', laptop: updatedLaptop });
+  } catch (error) {
+    console.error('Error updating laptop:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.delete('/api/laptops/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Laptop.findByIdAndDelete(id);
+    res.json({ message: 'Laptop deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting laptop:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
