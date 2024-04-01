@@ -26,7 +26,37 @@ export class LaptopFormComponent implements OnInit {
       this.isEditMode = true;
       this.loadLaptop(laptopId);
     }
+
+
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        // Fetch the laptop data based on the ID
+        this.isEditMode = true;
+        this.fetchLaptopData(id);
+      } else {
+        // Add mode: Initialize empty laptop data
+        this.isEditMode = false;
+        this.laptopData = { name: '', brand: '', price: null };
+      }
+    });
+
   }
+
+
+  fetchLaptopData(id: string) {
+    this.laptopService.getLaptopById(id).subscribe(
+      (data) => {
+        this.laptopData = data;
+        console.log("This is id data ",  this.laptopData);
+      },
+      (error) => {
+        console.error('Error fetching laptop data:', error);
+      }
+    );
+  }
+
+
 
   loadLaptop(id: string): void {
     this.laptopService.getLaptopById(id).subscribe(

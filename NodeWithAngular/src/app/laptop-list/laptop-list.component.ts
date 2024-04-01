@@ -2,6 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { LaptopService } from '../laptop.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-laptop-list',
@@ -11,7 +12,7 @@ import { LaptopService } from '../laptop.service';
 export class LaptopListComponent implements OnInit {
   laptops: any[] = [];
 
-  constructor(private laptopService: LaptopService) { }
+  constructor(private laptopService: LaptopService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadLaptops();
@@ -40,5 +41,9 @@ export class LaptopListComponent implements OnInit {
         }
       );
     }
+  }
+
+  updateLaptop(id: string) {
+    this.router.navigate([`/laptops/update`, id]);
   }
 }

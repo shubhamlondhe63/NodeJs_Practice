@@ -9,7 +9,8 @@ const routes: Routes = [
   { path: '', redirectTo: '/laptops', pathMatch: 'full' },
   { path: 'laptops', component: LaptopListComponent },
   { path: 'laptops/add', component: LaptopFormComponent },
-  { path: 'laptops/edit/:id', component: LaptopFormComponent }
+  { path: 'laptops/update/:id', component: LaptopFormComponent },
+
 ];
 
 @NgModule({

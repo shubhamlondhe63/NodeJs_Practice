@@ -46,6 +46,21 @@ app.get('/api/laptops', async (req, res) => {
   }
 });
 
+app.get('/api/laptops/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const laptop = await Laptop.findById(id);
+
+    if (!laptop) {
+      return res.status(404).json({ error: 'Laptop not found' });
+    }
+    res.json(laptop);
+  } catch (error) {
+    console.error('Error fetching laptop details:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.post('/api/laptops', async (req, res) => {
     try {
       const { name, brand, price } = req.body;
